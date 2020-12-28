@@ -23,7 +23,7 @@ const App = () => {
 
   React.useEffect(() => {
     if (error) {
-      console.log(error.message);
+      alert(error.message);
     }
   }, [error]);
 

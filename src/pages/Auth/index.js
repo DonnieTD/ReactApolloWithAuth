@@ -7,7 +7,9 @@ export const Auth = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [confirm, setConfirm] = React.useState("");
-  const [login, { data }] = useMutation(LOGIN_MUTATION);
+  const [login, { data, error }] = useMutation(LOGIN_MUTATION, {
+    errorPolicy: "all",
+  });
   const setLogin = useLogin();
 
   const handleSubmit = (e) => {
@@ -21,6 +23,11 @@ export const Auth = () => {
       setLogin(true);
     }
   }, [setLogin, data]);
+  React.useEffect(() => {
+    if (error) {
+      alert(error.message);
+    }
+  }, [error]);
 
   return (
     <div
