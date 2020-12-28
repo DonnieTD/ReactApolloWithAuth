@@ -1,25 +1,51 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { useAuthStatus, useLogin } from "./modules";
+import { Auth, Dashboard } from "./pages";
+import { gql, useQuery } from "@apollo/client";
+import { findAllInRenderedTree } from "react-dom/cjs/react-dom-test-utils.development";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const GET_USER = gql`
+  query {
+    current {
+      id
+      login
+    }
+  }
+`;
+
+const App = () => {
+  const login = useLogin();
+  const [{ loggedIn }] = useAuthStatus();
+  const { client, loading, error, data } = useQuery(GET_USER, {
+    errorPolicy: "all",
+  });
+
+  React.useEffect(() => {
+    if (error) {
+      console.log(error.message);
+    }
+  }, [error]);
+
+  React.useEffect(() => {
+    if (data) {
+      login(data.current !== null ? true : false);
+    }
+  }, [loading, login, data]);
+
+  React.useEffect(() => {
+    if (!loggedIn) {
+      client.resetStore();
+    }
+  }, [client, loggedIn]);
+
+  if (loggedIn) {
+    return <Dashboard />;
+  } else if (!loggedIn && loading) {
+    return <h1>Loading...</h1>;
+  } else {
+    return <Auth />;
+  }
+};
 
 export default App;
